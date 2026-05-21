@@ -1529,6 +1529,12 @@ footer {
   background: rgba(239,78,39,0.06);
 }
 
+.arch-lang-as {
+  border-color: rgba(52,168,83,0.4);
+  color: #34A853;
+  background: rgba(52,168,83,0.06);
+}
+
 .arch-lang-js {
   border-color: rgba(247,223,30,0.4);
   color: #F7DF1E;

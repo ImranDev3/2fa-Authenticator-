@@ -1,0 +1,17 @@
+[package]
+name = "authenticator-crypto-core"
+version = "1.0.0"
+description = "Rust crypto core for Authenticator - SHA-256, AES-256-GCM, Argon2id"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+# Build: cargo build --release
+# WASM: wasm-pack build --target web
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
