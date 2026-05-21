@@ -784,83 +784,10 @@ kbd {
   color: var(--text-tertiary);
 }
 
-/* ── Wallet Section ── */
-
-.wallet-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  border-top: 0.5px solid var(--border);
-  gap: 10px;
-}
-
-.wallet-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  flex: 1;
-}
-
-.wallet-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-
-.wallet-status {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-
-.wallet-address {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--accent);
-  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
-  display: none;
-}
-
-.btn-wallet {
-  flex-shrink: 0;
-  font-size: 11px;
-  padding: 5px 12px;
-}
-
-.btn-wallet.connected {
-  background: rgba(52,199,89,0.1);
-  border-color: rgba(52,199,89,0.3);
-  color: var(--green);
-}
-
-.btn-wallet.connected:hover {
-  background: rgba(255,59,48,0.1);
-  border-color: rgba(255,59,48,0.3);
-  color: var(--red);
-}
-
-/* ── Backup Panel ── */
-
-.backup-panel {
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 6px;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-}
+/* ── Modal Backup Body ── */
 
 .bp-body {
-  padding: 10px 12px;
+  padding: 12px 0 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -883,6 +810,11 @@ kbd {
 .bp-actions .btn {
   font-size: 10px;
   padding: 4px 10px;
+}
+
+.bp-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .bp-status {
@@ -922,58 +854,6 @@ kbd {
 
 .bp-input-row input:focus {
   border-color: var(--accent);
-}
-
-.dark .backup-panel {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
-.dark .bp-tabs {
-  border-bottom-color: var(--border);
-}
-
-/* ── Wallet Backup Bar (legacy) ── */
-
-.wallet-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 12px;
-  margin-bottom: 6px;
-  backdrop-filter: blur(8px);
-}
-
-.wallet-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-
-.wallet-bar-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.wallet-bar-actions .btn {
-  font-size: 10px;
-  padding: 4px 10px;
-}
-
-.dark .wallet-section {
-  border-top-color: var(--border);
-}
-
-.dark .wallet-bar {
-  background: var(--surface);
 }
 
 .dark .btn-wallet.connected {
