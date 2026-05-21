@@ -33,12 +33,19 @@ window.Authenticator = window.Authenticator || {};
     }
   };
 
+  Authenticator.fillManualFields = function(secret, issuer) {
+    Authenticator.dom.secretInput.value = secret;
+    Authenticator.dom.issuerInput.value = issuer;
+    Authenticator.dom.secretInput.focus();
+    Authenticator.dom.secretInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   Authenticator.processQR = function(data) {
     const s = Authenticator.extractSecret(data);
     if (s) {
       const issuer = Authenticator.extractIssuer(data);
-      Authenticator.addAccount(s, issuer);
-      Authenticator.showToast('QR scanned! Added ' + issuer, 'success');
+      Authenticator.fillManualFields(s, issuer);
+      Authenticator.showToast('QR scanned! Review and click Add.', 'success');
       return true;
     }
     Authenticator.showToast('No valid secret found.', 'error');
@@ -120,7 +127,7 @@ window.Authenticator = window.Authenticator || {};
         const f = item.getAsFile();
         if (f) {
           Authenticator.processFile(f);
-          Authenticator.showToast('Processing pasted image...', 'info');
+          Authenticator.showToast('Processing image...', 'info');
           return;
         }
       }
@@ -130,14 +137,14 @@ window.Authenticator = window.Authenticator || {};
       const s = Authenticator.extractSecret(text);
       if (s) {
         const issuer = Authenticator.extractIssuer(text);
-        Authenticator.addAccount(s, issuer);
-        Authenticator.showToast('Added ' + issuer, 'success');
+        Authenticator.fillManualFields(s, issuer);
+        Authenticator.showToast('Secret pasted! Click Add to save.', 'success');
         return;
       }
       const clean = text.replace(/[ \t\r\n]/g, '').toUpperCase();
       if (/^[A-Z2-7]{16,}$/.test(clean)) {
-        Authenticator.addAccount(clean, 'My Account');
-        Authenticator.showToast('Account added.', 'success');
+        Authenticator.fillManualFields(clean, 'My Account');
+        Authenticator.showToast('Secret pasted! Click Add to save.', 'success');
         return;
       }
     }
