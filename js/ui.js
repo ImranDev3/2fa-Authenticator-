@@ -233,7 +233,7 @@ window.Authenticator = window.Authenticator || {};
   /* ── Preview TOTP (live when typing secret) ── */
 
   Authenticator.startPreview = function() {
-    const raw = $.secretInput.value.trim().toUpperCase();
+    const raw = $.secretInput.value.replace(/[= \t\r\n]/g, '').toUpperCase();
     const valid = /^[A-Z2-7]{16,}$/.test(raw);
 
     if (!valid) {

@@ -139,7 +139,7 @@ window.Authenticator = window.Authenticator || {};
         Authenticator.showToast('Secret pasted! Click Add to save.', 'success');
         return;
       }
-      const clean = text.replace(/[ \t\r\n]/g, '').toUpperCase();
+      const clean = text.replace(/[= \t\r\n]/g, '').toUpperCase();
       if (/^[A-Z2-7]{16,}$/.test(clean)) {
         Authenticator.fillManualFields(clean, 'My Account');
         Authenticator.showToast('Secret pasted! Click Add to save.', 'success');

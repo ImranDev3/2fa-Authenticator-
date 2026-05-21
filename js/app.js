@@ -50,7 +50,7 @@ window.Authenticator = window.Authenticator || {};
   $.secretInput.addEventListener('input', Authenticator.startPreview);
 
   $.setSecretBtn.addEventListener('click', () => {
-    const secret = $.secretInput.value.trim().toUpperCase();
+    const secret = $.secretInput.value.replace(/[= \t\r\n]/g, '').toUpperCase();
     const issuer = $.issuerInput.value.trim() || 'My Account';
     if (/^[A-Z2-7]{16,}$/.test(secret)) {
       Authenticator.addAccount(secret, issuer);
