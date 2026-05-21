@@ -36,8 +36,6 @@ window.Authenticator = window.Authenticator || {};
   Authenticator.fillManualFields = function(secret, issuer) {
     Authenticator.dom.secretInput.value = secret;
     Authenticator.dom.issuerInput.value = issuer;
-    Authenticator.dom.secretInput.focus();
-    Authenticator.dom.secretInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   Authenticator.processQR = function(data) {
