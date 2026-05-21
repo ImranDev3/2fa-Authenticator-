@@ -3,48 +3,31 @@ window.Authenticator = window.Authenticator || {};
 (function() {
   const $ = Authenticator.dom;
 
-  Authenticator.currentSecret = '';
-  Authenticator.totpTimer = null;
-  Authenticator.countdownTimer = null;
-  Authenticator.cameraStream = null;
-  Authenticator.cameraScanTimer = null;
-  Authenticator.toastTimer = null;
+  function init() {
+    Authenticator.loadTheme();
+    Authenticator.loadAccounts();
+    Authenticator.renderList();
+    Authenticator.startGlobalTimer();
 
-  function restoreLast() {
+    // Migrate old single-account data
     try {
-      const s = localStorage.getItem('2fa_secret');
-      const i = localStorage.getItem('2fa_issuer') || '';
-      if (s) {
-        Authenticator.setSecret(s, i);
-        Authenticator.showToast('Restored last secret.', 'info');
+      const oldSecret = localStorage.getItem('2fa_secret');
+      const oldIssuer = localStorage.getItem('2fa_issuer');
+      if (oldSecret && Authenticator.accounts.length === 0) {
+        Authenticator.addAccount(oldSecret, oldIssuer || 'My Account');
+        localStorage.removeItem('2fa_secret');
+        localStorage.removeItem('2fa_issuer');
       }
     } catch {}
   }
 
-  function init() {
-    Authenticator.loadTheme();
-    Authenticator.updateLastUsed();
-
-    try {
-      const s = localStorage.getItem('2fa_secret');
-      const i = localStorage.getItem('2fa_issuer') || '';
-      if (s) {
-        Authenticator.currentSecret = s;
-        $.secretInput.value = s;
-        if (i) $.otpIssuer.textContent = i;
-        Authenticator.startTOTP();
-      } else {
-        $.otpDisplay.classList.add('blur');
-      }
-    } catch {
-      $.otpDisplay.classList.add('blur');
-    }
-  }
-
-  // --- Event Bindings ---
-
+  // Theme
   $.themeToggle.addEventListener('click', Authenticator.toggleTheme);
 
+  // Search
+  $.searchInput.addEventListener('input', () => Authenticator.renderList());
+
+  // Drop zone
   $.dropZone.addEventListener('click', () => $.fileInput.click());
   $.dropZone.addEventListener('dragover', e => {
     e.preventDefault();
@@ -63,37 +46,43 @@ window.Authenticator = window.Authenticator || {};
     }
   });
 
+  // Manual entry
   $.setSecretBtn.addEventListener('click', () => {
-    const v = $.secretInput.value.trim().toUpperCase();
-    if (/^[A-Z2-7]{16,}$/.test(v)) {
-      Authenticator.setSecret(v, '');
-      Authenticator.showToast('Secret set.', 'success');
+    const secret = $.secretInput.value.trim().toUpperCase();
+    const issuer = $.issuerInput.value.trim() || 'My Account';
+    if (/^[A-Z2-7]{16,}$/.test(secret)) {
+      Authenticator.addAccount(secret, issuer);
+      $.secretInput.value = '';
+      $.issuerInput.value = '';
+      Authenticator.showToast('Account added.', 'success');
     } else {
-      Authenticator.showToast('Invalid secret.', 'error');
+      Authenticator.showToast('Invalid secret key.', 'error');
     }
   });
   $.secretInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') $.setSecretBtn.click();
   });
-  $.lastUsedEl.addEventListener('click', restoreLast);
+  $.issuerInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') $.setSecretBtn.click();
+  });
 
+  // Paste
   document.addEventListener('paste', Authenticator.handlePaste);
 
-  $.copyBtn.addEventListener('click', Authenticator.copyOTP);
-  $.otpDisplay.addEventListener('click', Authenticator.copyOTP);
-  $.resetBtn.addEventListener('click', Authenticator.resetAll);
-
+  // Camera
   $.cameraBtn.addEventListener('click', Authenticator.startCamera);
   $.camClose.addEventListener('click', Authenticator.stopCamera);
   $.cameraModal.addEventListener('click', e => {
     if (e.target === $.cameraModal) Authenticator.stopCamera();
   });
 
+  // Keyboard shortcuts
   document.addEventListener('keydown', e => {
-    if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey) Authenticator.copyOTP();
-    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey) Authenticator.resetAll();
+    if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && Authenticator.accounts.length === 1) {
+      Authenticator.copyCode(Authenticator.accounts[0].id);
+    }
   });
 
-  // --- Boot ---
+  // Boot
   init();
 })();

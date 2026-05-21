@@ -27,17 +27,18 @@ window.Authenticator = window.Authenticator || {};
       if (i) return decodeURIComponent(i);
       const m = u.match(/otpauth:\/\/totp\/(.+?)(\?|$)/);
       if (m) return decodeURIComponent(m[1]).replace(/:.*$/, '');
-      return '';
+      return 'My Account';
     } catch {
-      return '';
+      return 'My Account';
     }
   };
 
   Authenticator.processQR = function(data) {
     const s = Authenticator.extractSecret(data);
     if (s) {
-      Authenticator.setSecret(s, Authenticator.extractIssuer(data));
-      Authenticator.showToast('QR scanned! Secret extracted.', 'success');
+      const issuer = Authenticator.extractIssuer(data);
+      Authenticator.addAccount(s, issuer);
+      Authenticator.showToast('QR scanned! Added ' + issuer, 'success');
       return true;
     }
     Authenticator.showToast('No valid secret found.', 'error');
@@ -128,14 +129,15 @@ window.Authenticator = window.Authenticator || {};
     if (text) {
       const s = Authenticator.extractSecret(text);
       if (s) {
-        Authenticator.setSecret(s, Authenticator.extractIssuer(text));
-        Authenticator.showToast('Secret pasted!', 'success');
+        const issuer = Authenticator.extractIssuer(text);
+        Authenticator.addAccount(s, issuer);
+        Authenticator.showToast('Added ' + issuer, 'success');
         return;
       }
       const clean = text.replace(/[ \t\r\n]/g, '').toUpperCase();
       if (/^[A-Z2-7]{16,}$/.test(clean)) {
-        Authenticator.setSecret(clean, '');
-        Authenticator.showToast('Secret pasted.', 'success');
+        Authenticator.addAccount(clean, 'My Account');
+        Authenticator.showToast('Account added.', 'success');
         return;
       }
     }

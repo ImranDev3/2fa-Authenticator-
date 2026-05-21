@@ -40,4 +40,8 @@ window.Authenticator = window.Authenticator || {};
       (hmac[off + 3] & 0xff);
     return String(code % 1000000).padStart(6, '0');
   };
+
+  Authenticator.getTimeRemaining = function(step = 30) {
+    return step - (Math.floor(Date.now() / 1000) % step);
+  };
 })();

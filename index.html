@@ -37,7 +37,7 @@
           </div>
           <div>
             <h1 class="brand-name">Authenticator</h1>
-            <p class="brand-sub">Two-factor codes</p>
+            <p class="brand-sub" id="accountCount">0 accounts</p>
           </div>
         </div>
         <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
@@ -47,46 +47,26 @@
 
       <main>
 
-        <section class="code-section">
-          <div class="code-label">Verification code</div>
+        <div class="search-row">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="4.5"/><line x1="12.5" y1="12.5" x2="17" y2="17"/></svg>
+          <input type="text" id="searchInput" placeholder="Search accounts..." spellcheck="false" autocomplete="off" />
+        </div>
 
-          <div class="code-display" id="otpDisplay" title="Click to copy">
-            <span class="code-value" id="otpValue">— — — &nbsp;— — —</span>
-            <span class="copy-hint">Click to copy</span>
-          </div>
-
-          <div class="code-issuer" id="otpIssuer"></div>
-
-          <div class="timer">
-            <div class="timer-ring">
-              <svg viewBox="0 0 44 44">
-                <circle class="timer-track" cx="22" cy="22" r="18" />
-                <circle class="timer-fill" id="timerFill" cx="22" cy="22" r="18"
-                stroke-dasharray="113.09" stroke-dashoffset="0" />
-              </svg>
-              <span class="timer-text" id="timerText">30</span>
+        <div class="account-list" id="accountList">
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
-            <span class="timer-label" id="timerLabel">Code expires in</span>
+            <p class="empty-title">No accounts yet</p>
+            <p class="empty-sub">Add your first account below</p>
           </div>
-
-          <div class="actions">
-            <button class="btn btn-secondary" id="copyBtn">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M5 15H4a1.5 1.5 0 0 1-1.5-1.5V4A1.5 1.5 0 0 1 4 2.5h9A1.5 1.5 0 0 1 14.5 4v1"/></svg>
-              Copy Code
-            </button>
-            <button class="btn btn-secondary" id="resetBtn">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 2 18 7 13 7"/><path d="M16.83 13a7 7 0 1 1-1.64-7.28L18 7"/></svg>
-              Reset
-            </button>
-          </div>
-        </section>
+        </div>
 
         <div class="section-divider">
           <span>Add Account</span>
         </div>
 
         <div class="add-grid">
-
           <div class="add-card" id="dropZone">
             <div class="add-card-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/><line x1="3" y1="13" x2="8" y2="13"/><line x1="16" y1="13" x2="21" y2="13"/><line x1="13" y1="3" x2="13" y2="8"/><line x1="11" y1="16" x2="11" y2="21"/></svg>
@@ -100,9 +80,7 @@
                 Camera
               </button>
             </div>
-            <div class="add-card-foot">
-              <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste
-            </div>
+            <div class="add-card-foot"><kbd>Ctrl</kbd> + <kbd>V</kbd> to paste</div>
           </div>
 
           <div class="add-card card-manual">
@@ -112,14 +90,11 @@
             <div class="add-card-title">Manual Entry</div>
             <div class="input-row">
               <input type="text" id="secretInput" placeholder="Paste secret key..." spellcheck="false" autocomplete="off" />
-              <button class="btn btn-small btn-primary" id="setSecretBtn">Set</button>
+              <input type="text" id="issuerInput" placeholder="Account name..." spellcheck="false" autocomplete="off" />
+              <button class="btn btn-small btn-primary" id="setSecretBtn">Add</button>
             </div>
-            <div class="last-used" id="lastUsed"></div>
-            <div class="add-card-foot">
-              Base32 secret from your provider
-            </div>
+            <div class="add-card-foot">Base32 secret from your provider</div>
           </div>
-
         </div>
 
       </main>
