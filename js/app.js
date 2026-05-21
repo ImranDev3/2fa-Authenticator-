@@ -43,7 +43,7 @@ window.Authenticator = window.Authenticator || {};
 
   // --- Event Bindings ---
 
-  Authenticator.themeToggle.addEventListener('click', Authenticator.toggleTheme);
+  $.themeToggle.addEventListener('click', Authenticator.toggleTheme);
 
   $.dropZone.addEventListener('click', () => $.fileInput.click());
   $.dropZone.addEventListener('dragover', e => {

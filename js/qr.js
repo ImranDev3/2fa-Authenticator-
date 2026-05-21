@@ -76,9 +76,9 @@ window.Authenticator = window.Authenticator || {};
           height: { ideal: 480 }
         }
       });
-      Authenticator.cameraFeed.srcObject = Authenticator.cameraStream;
-      Authenticator.cameraModal.classList.add('open');
-      Authenticator.camStatus.textContent = 'Scanning for QR code...';
+      Authenticator.dom.cameraFeed.srcObject = Authenticator.cameraStream;
+      Authenticator.dom.cameraModal.classList.add('open');
+      Authenticator.dom.camStatus.textContent = 'Scanning for QR code...';
       Authenticator.scanFrame();
     } catch {
       Authenticator.showToast('Camera unavailable.', 'error');
@@ -91,17 +91,17 @@ window.Authenticator = window.Authenticator || {};
       Authenticator.cameraStream = null;
     }
     clearTimeout(Authenticator.cameraScanTimer);
-    Authenticator.cameraModal.classList.remove('open');
+    Authenticator.dom.cameraModal.classList.remove('open');
   };
 
   Authenticator.scanFrame = function() {
-    if (!Authenticator.cameraModal.classList.contains('open')) return;
-    if (Authenticator.cameraFeed.readyState >= 2) {
+    if (!Authenticator.dom.cameraModal.classList.contains('open')) return;
+    if (Authenticator.dom.cameraFeed.readyState >= 2) {
       const c = document.createElement('canvas');
-      c.width = Authenticator.cameraFeed.videoWidth;
-      c.height = Authenticator.cameraFeed.videoHeight;
+      c.width = Authenticator.dom.cameraFeed.videoWidth;
+      c.height = Authenticator.dom.cameraFeed.videoHeight;
       const ctx = c.getContext('2d');
-      ctx.drawImage(Authenticator.cameraFeed, 0, 0);
+      ctx.drawImage(Authenticator.dom.cameraFeed, 0, 0);
       const d = ctx.getImageData(0, 0, c.width, c.height);
       const r = Authenticator.decodeQR(d.data, d.width, d.height);
       if (r && Authenticator.processQR(r)) {
