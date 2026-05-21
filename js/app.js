@@ -85,13 +85,56 @@ window.Authenticator = window.Authenticator || {};
     }
   });
 
-  document.getElementById('exportBtn').addEventListener('click', function() {
-    Authenticator.exportEncryptedBackup();
+  // Legacy backup bar buttons
+  var exportBtn = document.getElementById('exportBtn');
+  var importBtn = document.getElementById('importBtn');
+  if (exportBtn) exportBtn.addEventListener('click', function() { Authenticator.exportEncryptedBackup(); });
+  if (importBtn) importBtn.addEventListener('click', function() { Authenticator.importEncryptedBackup(); });
+
+  // Backup panel tabs
+  document.querySelectorAll('.bp-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.bp-tab').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+      document.querySelectorAll('.bp-body').forEach(function(b) { b.style.display = 'none'; });
+      var target = document.getElementById('bp' + this.dataset.tab.charAt(0).toUpperCase() + this.dataset.tab.slice(1));
+      if (target) target.style.display = 'block';
+    });
   });
 
-  document.getElementById('importBtn').addEventListener('click', function() {
-    Authenticator.importEncryptedBackup();
+  // MetaMask backup buttons
+  document.getElementById('metaExport').addEventListener('click', function() {
+    if (Authenticator.wallet.encryptionKey) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Connect MetaMask first.', 'error'); }
   });
+  document.getElementById('metaImport').addEventListener('click', function() {
+    if (Authenticator.wallet.encryptionKey) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Connect MetaMask first.', 'error'); }
+  });
+
+  // Google backup buttons
+  document.getElementById('gExport').addEventListener('click', function() {
+    if (Authenticator.google.encryptionKey) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Sign in with Google first.', 'error'); }
+  });
+  document.getElementById('gImport').addEventListener('click', function() {
+    if (Authenticator.google.encryptionKey) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Sign in with Google first.', 'error'); }
+  });
+  document.getElementById('gSignOut').addEventListener('click', Authenticator.disconnectGoogle);
+  document.getElementById('gSetId').addEventListener('click', Authenticator.setGoogleClientId);
+
+  // Password backup buttons
+  document.getElementById('pwdUnlock').addEventListener('click', Authenticator.unlockPassword);
+  document.getElementById('pwdExport').addEventListener('click', function() {
+    if (Authenticator.password.encryptionKey) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Set a password first.', 'error'); }
+  });
+  document.getElementById('pwdImport').addEventListener('click', function() {
+    if (Authenticator.password.encryptionKey) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Set a password first.', 'error'); }
+  });
+  document.getElementById('pwdLock').addEventListener('click', Authenticator.lockPassword);
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {

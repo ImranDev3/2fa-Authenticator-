@@ -848,7 +848,130 @@ kbd {
   color: var(--red);
 }
 
-/* ── Wallet Backup Bar ── */
+/* ── Backup Panel ── */
+
+.backup-panel {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.bp-tabs {
+  display: flex;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.bp-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 7px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  position: relative;
+}
+
+.bp-tab:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.bp-tab.active {
+  color: var(--accent);
+}
+
+.bp-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+}
+
+.bp-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bp-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.bp-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.bp-actions .btn {
+  font-size: 10px;
+  padding: 4px 10px;
+}
+
+.bp-status {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.bp-note {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+.bp-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.bp-input-row {
+  display: flex;
+  gap: 4px;
+}
+
+.bp-input-row input {
+  flex: 1;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 11px;
+  color: var(--text);
+  outline: none;
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  transition: border-color 0.2s var(--ease);
+}
+
+.bp-input-row input:focus {
+  border-color: var(--accent);
+}
+
+.dark .backup-panel {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.dark .bp-tabs {
+  border-bottom-color: var(--border);
+}
+
+/* ── Wallet Backup Bar (legacy) ── */
 
 .wallet-bar {
   display: flex;
