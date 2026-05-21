@@ -132,6 +132,163 @@
     </div>
   </div>
 
+  <!-- Architecture Modal -->
+  <div class="modal-overlay" id="archModal" style="display:none">
+    <div class="modal modal-arch">
+      <div class="modal-header">
+        <h3>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px"><polygon points="10 1 18 5.5 18 14.5 10 19 2 14.5 2 5.5 10 1"/><line x1="10" y1="1" x2="10" y2="19"/></svg>
+          Security Architecture
+        </h3>
+        <button class="modal-close" id="archClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="arch-diagram">
+
+          <!-- Row 1: Input -->
+          <div class="arch-row">
+            <div class="arch-node arch-input">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="3" width="14" height="14" rx="2"/><line x1="3" y1="9" x2="17" y2="9"/><line x1="9" y1="3" x2="9" y2="17"/></svg>
+              </div>
+              <span>QR Scan</span>
+            </div>
+            <div class="arch-node arch-input">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M17 3l-3 3m-4 4a4 4 0 1 1-5.66 5.66A4 4 0 0 1 9.66 9.66zm0 0L14 6"/></svg>
+              </div>
+              <span>Manual</span>
+            </div>
+            <div class="arch-node arch-input">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="5" width="14" height="12" rx="1.5"/><path d="M6 5V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/></svg>
+              </div>
+              <span>Paste</span>
+            </div>
+            <div class="arch-node arch-input">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M17 14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3l1.5-2h5L16 5h1a2 2 0 0 1 2 2z"/><circle cx="10" cy="10.5" r="3"/></svg>
+              </div>
+              <span>Camera</span>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="arch-arrow arch-arrow-down"><div class="arch-dot"></div><div class="arch-dot"></div><div class="arch-dot"></div></div>
+
+          <!-- Row 2: Storage -->
+          <div class="arch-row">
+            <div class="arch-node arch-primary arch-lg">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="5" width="16" height="12" rx="2"/><line x1="2" y1="9" x2="18" y2="9"/><circle cx="5" cy="7" r="1" fill="currentColor"/></svg>
+              </div>
+              <div>
+                <span class="arch-label">Accounts</span>
+                <span class="arch-sub">localStorage</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="arch-arrow arch-arrow-down"><div class="arch-dot"></div><div class="arch-dot"></div><div class="arch-dot"></div></div>
+
+          <!-- Row 3: Auth Type -->
+          <div class="arch-row">
+            <div class="arch-node arch-method">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 4h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><circle cx="10" cy="9" r="1.5"/><path d="M7 13c0-1.66 1.34-3 3-3s3 1.34 3 3"/></svg>
+              </div>
+              <span>MetaMask</span>
+            </div>
+            <div class="arch-node arch-method">
+              <div class="arch-icon arch-icon-guard">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="7" width="14" height="12" rx="1.5"/><path d="M6 7V4a4 4 0 0 1 8 0v3"/><circle cx="10" cy="12" r="1.2"/></svg>
+              </div>
+              <span>WebAuthn</span>
+            </div>
+            <div class="arch-node arch-method">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="10" cy="10" r="7.5"/><circle cx="10" cy="10" r="3"/></svg>
+              </div>
+              <span>Google</span>
+            </div>
+            <div class="arch-node arch-method">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="9" width="14" height="10" rx="1.5"/><path d="M6 9V6a4 4 0 0 1 8 0v3"/></svg>
+              </div>
+              <span>Password</span>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="arch-arrow arch-arrow-down"><div class="arch-dot"></div><div class="arch-dot"></div><div class="arch-dot"></div></div>
+
+          <!-- Row 4: KDF + Encryption side by side -->
+          <div class="arch-row arch-crypto-row">
+            <div class="arch-node arch-crypto arch-kdf">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="10" cy="5" r="3"/><circle cx="4" cy="15" r="3"/><circle cx="16" cy="15" r="3"/><line x1="8" y1="7.5" x2="6" y2="12.5"/><line x1="12" y1="7.5" x2="14" y2="12.5"/></svg>
+              </div>
+              <div>
+                <span class="arch-label">Argon2id KDF</span>
+                <span class="arch-sub">64MB memory · 3 rounds · GPU/ASIC resistant</span>
+              </div>
+            </div>
+            <div class="arch-plus">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="10" y1="4" x2="10" y2="16"/><line x1="4" y1="10" x2="16" y2="10"/></svg>
+            </div>
+            <div class="arch-node arch-crypto arch-aes">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4" y="2" width="12" height="16" rx="2"/><line x1="7" y1="8" x2="13" y2="8"/><line x1="7" y1="11" x2="13" y2="11"/><line x1="7" y1="14" x2="10" y2="14"/></svg>
+              </div>
+              <div>
+                <span class="arch-label">AES-256-GCM</span>
+                <span class="arch-sub">256-bit · 96-bit nonce · Authenticated encryption</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="arch-arrow arch-arrow-down"><div class="arch-dot"></div><div class="arch-dot"></div><div class="arch-dot"></div></div>
+
+          <!-- Row 5: Output -->
+          <div class="arch-row">
+            <div class="arch-node arch-output arch-lg">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M5 13l-3 3m0 0l3 3m-3-3h16"/><path d="M15 7l3-3m0 0l-3-3m3 3H2"/></svg>
+              </div>
+              <div>
+                <span class="arch-label">Encrypted Backup JSON</span>
+                <span class="arch-sub">v3 · Auto-clears clipboard in 30s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session features -->
+          <div class="arch-features">
+            <div class="arch-feature">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><polyline points="8 4 8 8 11 10"/></svg>
+              Auto-Lock: 5 min inactivity
+            </div>
+            <div class="arch-feature">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="8" rx="1"/><path d="M5 7V4a3 3 0 0 1 6 0v3"/></svg>
+              WebAuthn FIDO2 Hardware Key
+            </div>
+            <div class="arch-feature">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v3m0 0L5 2m3 2l3-2"/><circle cx="8" cy="10" r="4"/></svg>
+              SRI Integrity on CDN scripts
+            </div>
+            <div class="arch-feature">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12l-2 2m0 0l2 2m-2-2h12M12 4l2-2m0 0l-2-2m2 2H2"/></svg>
+              Zero-server · No data leaves device
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Window -->
   <div class="window">
     <div class="window-body">
@@ -147,6 +304,9 @@
           </div>
         </div>
         <div class="header-actions">
+          <button class="btn btn-icon" id="archTrigger" title="Security Architecture">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 1 18 5.5 18 14.5 10 19 2 14.5 2 5.5 10 1"/><line x1="10" y1="1" x2="10" y2="19"/><line x1="2" y1="5.5" x2="18" y2="5.5"/><line x1="2" y1="14.5" x2="18" y2="14.5"/></svg>
+          </button>
           <button class="btn btn-icon" id="backupTrigger" title="Secure Backup">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2a6 6 0 0 0-6 6v3a2 2 0 0 0-2 2v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a2 2 0 0 0-2-2V8a6 6 0 0 0-6-6z"/><circle cx="10" cy="13" r="1.5"/><path d="M10 10v2"/></svg>
           </button>

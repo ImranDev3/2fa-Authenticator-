@@ -25,6 +25,19 @@ window.Authenticator = window.Authenticator || {};
   // ── Theme ──
   $.themeToggle.addEventListener('click', Authenticator.toggleTheme);
 
+  // ── Architecture modal ──
+  $.archTrigger.addEventListener('click', function() {
+    $.archModal.style.display = 'flex';
+  });
+
+  $.archClose.addEventListener('click', function() {
+    $.archModal.style.display = 'none';
+  });
+
+  $.archModal.addEventListener('click', function(e) {
+    if (e.target === $.archModal) $.archModal.style.display = 'none';
+  });
+
   // ── Backup modal ──
   $.backupTrigger.addEventListener('click', function() {
     Authenticator.updateModalUI();
