@@ -19,7 +19,13 @@ window.Authenticator = window.Authenticator || {};
     cameraModal: document.getElementById('cameraModal'),
     cameraFeed: document.getElementById('cameraFeed'),
     camStatus: document.getElementById('camStatus'),
-    camClose: document.getElementById('camClose')
+    camClose: document.getElementById('camClose'),
+    previewSection: document.getElementById('previewSection'),
+    otpValue: document.getElementById('otpValue'),
+    otpDisplay: document.getElementById('otpDisplay'),
+    otpIssuer: document.getElementById('otpIssuer'),
+    tpFill: document.getElementById('tpFill'),
+    tpText: document.getElementById('tpText')
   };
 
   const $ = Authenticator.dom;
@@ -27,6 +33,9 @@ window.Authenticator = window.Authenticator || {};
   Authenticator.accounts = [];
   Authenticator.totpTimers = {};
   Authenticator.updateTimer = null;
+  Authenticator.previewTimer = null;
+  Authenticator.previewSecret = null;
+  Authenticator.prevCountdown = null;
   Authenticator.cameraStream = null;
   Authenticator.cameraScanTimer = null;
   Authenticator.toastTimer = null;
@@ -219,5 +228,68 @@ window.Authenticator = window.Authenticator || {};
         $.themeToggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
       }
     } catch {}
+  };
+
+  /* ── Preview TOTP (live when typing secret) ── */
+
+  Authenticator.startPreview = function() {
+    const raw = $.secretInput.value.trim().toUpperCase();
+    const valid = /^[A-Z2-7]{16,}$/.test(raw);
+
+    if (!valid) {
+      $.previewSection.classList.remove('show');
+      Authenticator.previewSecret = null;
+      clearInterval(Authenticator.previewTimer);
+      clearInterval(Authenticator.prevCountdown);
+      return;
+    }
+
+    Authenticator.previewSecret = raw;
+    $.previewSection.classList.add('show');
+    Authenticator.updatePreviewCode();
+    Authenticator.startPreviewTimer();
+  };
+
+  Authenticator.updatePreviewCode = async function() {
+    if (!Authenticator.previewSecret) return;
+    const code = await Authenticator.generateTOTP(Authenticator.previewSecret);
+    $.otpValue.textContent = code.slice(0, 3) + ' \u00a0' + code.slice(3);
+    $.otpValue.classList.remove('blur');
+  };
+
+  Authenticator.startPreviewTimer = function() {
+    clearInterval(Authenticator.previewTimer);
+    clearInterval(Authenticator.prevCountdown);
+
+    function tick() {
+      const rem = Authenticator.getTimeRemaining();
+      $.tpText.textContent = rem;
+      const offset = 113.09 * (1 - rem / 30);
+      $.tpFill.setAttribute('stroke-dashoffset', offset);
+      $.tpFill.classList.toggle('danger', rem <= 5);
+      $.tpFill.classList.toggle('warning', rem > 5 && rem <= 10);
+    }
+    tick();
+    Authenticator.prevCountdown = setInterval(tick, 1000);
+
+    const ms = 30000 - (Date.now() % 30000);
+    setTimeout(() => {
+      Authenticator.updatePreviewCode();
+      Authenticator.previewTimer = setInterval(Authenticator.updatePreviewCode, 30000);
+    }, ms);
+  };
+
+  Authenticator.copyPreviewCode = function() {
+    const code = $.otpValue.textContent.replace(/[\s\u00a0]/g, '');
+    if (code && code.length === 6) {
+      navigator.clipboard.writeText(code)
+        .then(() => Authenticator.showToast('Copied!', 'success'))
+        .catch(() => {
+          const t = document.createElement('textarea');
+          t.value = code; document.body.appendChild(t); t.select();
+          document.execCommand('copy'); document.body.removeChild(t);
+          Authenticator.showToast('Copied!', 'success');
+        });
+    }
   };
 })();

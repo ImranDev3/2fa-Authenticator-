@@ -53,6 +53,24 @@
           <input type="text" id="searchInput" placeholder="Search accounts..." spellcheck="false" autocomplete="off" />
         </div>
 
+        <div class="preview-section" id="previewSection">
+          <div class="code-display" id="otpDisplay">
+            <span class="code-value" id="otpValue">— — — &nbsp;— — —</span>
+            <span class="copy-hint">Click to copy</span>
+          </div>
+          <div class="code-issuer" id="otpIssuer"></div>
+          <div class="timer-preview">
+            <div class="timer-ring-preview">
+              <svg viewBox="0 0 44 44">
+                <circle class="tp-track" cx="22" cy="22" r="18" />
+                <circle class="tp-fill" id="tpFill" cx="22" cy="22" r="18"
+                stroke-dasharray="113.09" stroke-dashoffset="0" />
+              </svg>
+              <span class="tp-text" id="tpText">30</span>
+            </div>
+          </div>
+        </div>
+
         <div class="account-list" id="accountList">
           <div class="empty-state" id="emptyState">
             <div class="empty-icon">

@@ -47,6 +47,8 @@ window.Authenticator = window.Authenticator || {};
   });
 
   // Manual entry
+  $.secretInput.addEventListener('input', Authenticator.startPreview);
+
   $.setSecretBtn.addEventListener('click', () => {
     const secret = $.secretInput.value.trim().toUpperCase();
     const issuer = $.issuerInput.value.trim() || 'My Account';
@@ -65,6 +67,9 @@ window.Authenticator = window.Authenticator || {};
   $.issuerInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') $.setSecretBtn.click();
   });
+
+  // Preview copy
+  $.otpDisplay.addEventListener('click', Authenticator.copyPreviewCode);
 
   // Paste
   document.addEventListener('paste', Authenticator.handlePaste);
