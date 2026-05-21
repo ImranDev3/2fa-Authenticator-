@@ -1,97 +1,45 @@
 window.Authenticator = window.Authenticator || {};
 
 (function() {
-  const $ = Authenticator.dom;
+  var $ = Authenticator.dom;
 
   function init() {
     Authenticator.loadTheme();
     Authenticator.loadAccounts();
     Authenticator.renderList();
     Authenticator.startGlobalTimer();
+    Authenticator.bootBackup();
 
     // Migrate old single-account data
     try {
-      const oldSecret = localStorage.getItem('2fa_secret');
-      const oldIssuer = localStorage.getItem('2fa_issuer');
+      var oldSecret = localStorage.getItem('2fa_secret');
+      var oldIssuer = localStorage.getItem('2fa_issuer');
       if (oldSecret && Authenticator.accounts.length === 0) {
         Authenticator.addAccount(oldSecret, oldIssuer || 'My Account');
         localStorage.removeItem('2fa_secret');
         localStorage.removeItem('2fa_issuer');
       }
-    } catch {}
+    } catch (e) {}
   }
 
-  // Theme
+  // ── Theme ──
   $.themeToggle.addEventListener('click', Authenticator.toggleTheme);
 
-  // Search
-  $.searchInput.addEventListener('input', () => Authenticator.renderList());
-
-  // Drop zone
-  $.dropZone.addEventListener('click', () => $.fileInput.click());
-  $.dropZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    $.dropZone.classList.add('dragover');
-  });
-  $.dropZone.addEventListener('dragleave', () => $.dropZone.classList.remove('dragover'));
-  $.dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    $.dropZone.classList.remove('dragover');
-    if (e.dataTransfer.files.length) Authenticator.processFile(e.dataTransfer.files[0]);
-  });
-  $.fileInput.addEventListener('change', () => {
-    if ($.fileInput.files.length) {
-      Authenticator.processFile($.fileInput.files[0]);
-      $.fileInput.value = '';
-    }
+  // ── Backup modal ──
+  $.backupTrigger.addEventListener('click', function() {
+    Authenticator.updateModalUI();
+    $.backupModal.style.display = 'flex';
   });
 
-  // Manual entry
-  $.secretInput.addEventListener('input', Authenticator.startPreview);
-
-  $.setSecretBtn.addEventListener('click', () => {
-    const secret = $.secretInput.value.replace(/[= \t\r\n]/g, '').toUpperCase();
-    const issuer = $.issuerInput.value.trim() || 'My Account';
-    if (/^[A-Z2-7]{16,}$/.test(secret)) {
-      Authenticator.addAccount(secret, issuer);
-      $.secretInput.value = '';
-      $.issuerInput.value = '';
-      Authenticator.showToast('Account added.', 'success');
-    } else {
-      Authenticator.showToast('Invalid secret key.', 'error');
-    }
+  $.backupClose.addEventListener('click', function() {
+    $.backupModal.style.display = 'none';
   });
 
-
-  // Preview copy
-  $.otpDisplay.addEventListener('click', Authenticator.copyPreviewCode);
-
-  // Paste
-  document.addEventListener('paste', Authenticator.handlePaste);
-
-  // Camera
-  $.cameraBtn.addEventListener('click', Authenticator.startCamera);
-  $.camClose.addEventListener('click', Authenticator.stopCamera);
-  $.cameraModal.addEventListener('click', e => {
-    if (e.target === $.cameraModal) Authenticator.stopCamera();
+  $.backupModal.addEventListener('click', function(e) {
+    if (e.target === $.backupModal) $.backupModal.style.display = 'none';
   });
 
-  // Wallet
-  document.getElementById('walletBtn').addEventListener('click', function() {
-    if (Authenticator.wallet.address) {
-      Authenticator.disconnectWallet();
-    } else {
-      Authenticator.connectWallet();
-    }
-  });
-
-  // Legacy backup bar buttons
-  var exportBtn = document.getElementById('exportBtn');
-  var importBtn = document.getElementById('importBtn');
-  if (exportBtn) exportBtn.addEventListener('click', function() { Authenticator.exportEncryptedBackup(); });
-  if (importBtn) importBtn.addEventListener('click', function() { Authenticator.importEncryptedBackup(); });
-
-  // Backup panel tabs
+  // ── Backup tabs ──
   document.querySelectorAll('.bp-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
       document.querySelectorAll('.bp-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -102,62 +50,128 @@ window.Authenticator = window.Authenticator || {};
     });
   });
 
-  // MetaMask backup buttons
+  // ── MetaMask ──
+  document.getElementById('metaConnect').addEventListener('click', function() {
+    if (Authenticator.auth.metamask.address) { Authenticator.metaDisconnect(); }
+    else { Authenticator.metaConnect(); }
+  });
   document.getElementById('metaExport').addEventListener('click', function() {
-    if (Authenticator.wallet.encryptionKey) { Authenticator.exportBackup(); }
-    else { Authenticator.showToast('Connect MetaMask first.', 'error'); }
+    if (Authenticator.auth.metamask.key) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Unlock MetaMask first.', 'error'); }
   });
   document.getElementById('metaImport').addEventListener('click', function() {
-    if (Authenticator.wallet.encryptionKey) { Authenticator.importBackup(); }
-    else { Authenticator.showToast('Connect MetaMask first.', 'error'); }
+    if (Authenticator.auth.metamask.key) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Unlock MetaMask first.', 'error'); }
   });
 
-  // Google backup buttons
+  // ── WebAuthn ──
+  document.getElementById('wauthRegister').addEventListener('click', Authenticator.webauthnRegister);
+  document.getElementById('wauthLogin').addEventListener('click', Authenticator.webauthnLogin);
+  document.getElementById('wauthExport').addEventListener('click', function() {
+    if (Authenticator.auth.webauthn.key) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Unlock WebAuthn first.', 'error'); }
+  });
+  document.getElementById('wauthImport').addEventListener('click', function() {
+    if (Authenticator.auth.webauthn.key) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Unlock WebAuthn first.', 'error'); }
+  });
+
+  // ── Google ──
   document.getElementById('gExport').addEventListener('click', function() {
-    if (Authenticator.google.encryptionKey) { Authenticator.exportBackup(); }
+    if (Authenticator.auth.google.key) { Authenticator.exportBackup(); }
     else { Authenticator.showToast('Sign in with Google first.', 'error'); }
   });
   document.getElementById('gImport').addEventListener('click', function() {
-    if (Authenticator.google.encryptionKey) { Authenticator.importBackup(); }
+    if (Authenticator.auth.google.key) { Authenticator.importBackup(); }
     else { Authenticator.showToast('Sign in with Google first.', 'error'); }
   });
   document.getElementById('gSignOut').addEventListener('click', Authenticator.disconnectGoogle);
   document.getElementById('gSetId').addEventListener('click', Authenticator.setGoogleClientId);
 
-  // Password backup buttons
+  // ── Password ──
   document.getElementById('pwdUnlock').addEventListener('click', Authenticator.unlockPassword);
   document.getElementById('pwdExport').addEventListener('click', function() {
-    if (Authenticator.password.encryptionKey) { Authenticator.exportBackup(); }
-    else { Authenticator.showToast('Set a password first.', 'error'); }
+    if (Authenticator.auth.password.key) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Unlock password first.', 'error'); }
   });
   document.getElementById('pwdImport').addEventListener('click', function() {
-    if (Authenticator.password.encryptionKey) { Authenticator.importBackup(); }
-    else { Authenticator.showToast('Set a password first.', 'error'); }
+    if (Authenticator.auth.password.key) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Unlock password first.', 'error'); }
   });
   document.getElementById('pwdLock').addEventListener('click', Authenticator.lockPassword);
 
-  // Keyboard shortcuts
-  document.addEventListener('keydown', e => {
+  // ── Search ──
+  $.searchInput.addEventListener('input', function() { Authenticator.renderList(); });
+
+  // ── Drop zone ──
+  $.dropZone.addEventListener('click', function() { $.fileInput.click(); });
+  $.dropZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    $.dropZone.classList.add('dragover');
+  });
+  $.dropZone.addEventListener('dragleave', function() { $.dropZone.classList.remove('dragover'); });
+  $.dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    $.dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) Authenticator.processFile(e.dataTransfer.files[0]);
+  });
+  $.fileInput.addEventListener('change', function() {
+    if ($.fileInput.files.length) {
+      Authenticator.processFile($.fileInput.files[0]);
+      $.fileInput.value = '';
+    }
+  });
+
+  // ── Manual entry ──
+  $.secretInput.addEventListener('input', Authenticator.startPreview);
+
+  $.setSecretBtn.addEventListener('click', function() {
+    var secret = $.secretInput.value.replace(/[= \t\r\n]/g, '').toUpperCase();
+    var issuer = $.issuerInput.value.trim() || 'My Account';
+    if (/^[A-Z2-7]{16,}$/.test(secret)) {
+      Authenticator.addAccount(secret, issuer);
+      $.secretInput.value = '';
+      $.issuerInput.value = '';
+      Authenticator.showToast('Account added.', 'success');
+    } else {
+      Authenticator.showToast('Invalid secret key.', 'error');
+    }
+  });
+
+  // ── Preview copy ──
+  $.otpDisplay.addEventListener('click', Authenticator.copyPreviewCode);
+
+  // ── Paste ──
+  document.addEventListener('paste', Authenticator.handlePaste);
+
+  // ── Camera ──
+  $.cameraBtn.addEventListener('click', Authenticator.startCamera);
+  $.camClose.addEventListener('click', Authenticator.stopCamera);
+  $.cameraModal.addEventListener('click', function(e) {
+    if (e.target === $.cameraModal) Authenticator.stopCamera();
+  });
+
+  // ── Keyboard shortcuts ──
+  document.addEventListener('keydown', function(e) {
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && Authenticator.accounts.length === 1) {
       Authenticator.copyCode(Authenticator.accounts[0].id);
     }
   });
 
-  // Boot
+  // ── Boot ──
   init();
-  Authenticator.checkWalletConnection();
 
-  // PWA - register service worker
+  // ── PWA ──
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch(function() {});
   }
 
-  // Keep screen awake while viewing codes
+  // ── Wake Lock ──
   if ('wakeLock' in navigator) {
-    let lock = null;
-    document.addEventListener('visibilitychange', () => {
+    var lock = null;
+    document.addEventListener('visibilitychange', function() {
       if (document.visibilityState === 'visible' && Authenticator.accounts.length) {
-        navigator.wakeLock.request('screen').then(l => lock = l).catch(() => {});
+        navigator.wakeLock.request('screen').then(function(l) { lock = l; }).catch(function() {});
       } else if (lock) { lock.release(); lock = null; }
     });
   }

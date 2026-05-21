@@ -13,14 +13,16 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='15' y='40' width='70' height='50' rx='8' fill='%23007AFF'/><path d='M30 40V25a20 20 0 0 1 40 0v15' fill='none' stroke='%23007AFF' stroke-width='6' stroke-linecap='round'/><text x='50' y='74' text-anchor='middle' font-size='28' font-weight='bold' fill='white' font-family='system-ui'>2F</text></svg>">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-AKBK6pMSH/bHqM6wCs0w/o0PJ5RAqrGjn/cg98N6tpnCE55mLpX6BXu5KZTytIu" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" integrity="sha384-Gyz1Y1HMSq2qkZ7OKRw+qfWzPrjREzLzYBAIDCQO1OjECPcAo8uv8Q6t3Bz8MNn" crossorigin="anonymous"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/hash-wasm@4.11.0/dist/hash-wasm.min.js" integrity="sha384-eO6KM9EW0M0BTPUYYCV6SAzW73gAFg4vNRKSCbIP5DOuUhtqHCQlmj01R3BUQ3m" crossorigin="anonymous"></script>
 </head>
 <body>
 
   <div class="toast" id="toast"></div>
 
+  <!-- Camera Modal -->
   <div class="modal-overlay" id="cameraModal">
     <div class="modal">
       <div class="modal-header">
@@ -34,6 +36,103 @@
     </div>
   </div>
 
+  <!-- Backup Auth Modal -->
+  <div class="modal-overlay" id="backupModal" style="display:none">
+    <div class="modal modal-big">
+      <div class="modal-header">
+        <h3>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px"><path d="M10 2a6 6 0 0 0-6 6v3a2 2 0 0 0-2 2v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a2 2 0 0 0-2-2V8a6 6 0 0 0-6-6z"/><circle cx="10" cy="13" r="1.5"/><path d="M10 10v2"/></svg>
+          Secure Backup
+        </h3>
+        <button class="modal-close" id="backupClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="bp-tabs">
+          <button class="bp-tab active" data-tab="metamask">MetaMask</button>
+          <button class="bp-tab" data-tab="webauthn">WebAuthn</button>
+          <button class="bp-tab" data-tab="google">Google</button>
+          <button class="bp-tab" data-tab="password">Password</button>
+        </div>
+
+        <!-- MetaMask -->
+        <div class="bp-body bp-meta" id="bpMeta">
+          <div class="bp-row">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><path d="M4 4h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M4 8h12"/><path d="M8 4v4"/></svg>
+            <span>MetaMask Encrypted Backup</span>
+          </div>
+          <div id="metaAccount" class="bp-account"></div>
+          <div class="bp-actions">
+            <button class="btn btn-small btn-primary" id="metaConnect">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M8 1v7m0 0l3-3m-3 3L5 5"/><path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9"/></svg>
+              Connect
+            </button>
+            <button class="btn btn-small" id="metaExport" disabled>Export</button>
+            <button class="btn btn-small" id="metaImport" disabled>Import</button>
+          </div>
+          <div class="bp-status" id="metaStatus">Disconnected</div>
+        </div>
+
+        <!-- WebAuthn -->
+        <div class="bp-body bp-webauthn" id="bpWebauthn" style="display:none">
+          <div class="bp-row">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><rect x="3" y="8" width="14" height="11" rx="1.5"/><path d="M6 8V5a4 4 0 0 1 8 0v3"/><circle cx="10" cy="13" r="1"/><path d="M10 13v2"/></svg>
+            <span>Hardware Key (WebAuthn / FIDO2)</span>
+          </div>
+          <div class="bp-note">Use Windows Hello, Touch ID, Face ID, YubiKey or any FIDO2 authenticator</div>
+          <div class="bp-actions">
+            <button class="btn btn-small btn-primary" id="wauthRegister">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M8 8h3M8 5v6"/><circle cx="8" cy="8" r="6.5"/></svg>
+              Register Key
+            </button>
+            <button class="btn btn-small" id="wauthLogin" disabled>Unlock</button>
+            <button class="btn btn-small" id="wauthExport" disabled>Export</button>
+            <button class="btn btn-small" id="wauthImport" disabled>Import</button>
+          </div>
+          <div class="bp-status" id="wauthStatus">No key registered</div>
+        </div>
+
+        <!-- Google -->
+        <div class="bp-body bp-google" id="bpGoogle" style="display:none">
+          <div class="bp-row">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><circle cx="10" cy="10" r="9"/><circle cx="10" cy="10" r="4"/></svg>
+            <span>Google Sign-In Backup</span>
+          </div>
+          <div id="gButton" class="bp-oauth-btn"></div>
+          <div class="bp-status" id="gStatus">Not signed in</div>
+          <div class="bp-actions" id="gActions" style="display:none">
+            <button class="btn btn-small" id="gExport">Export</button>
+            <button class="btn btn-small" id="gImport">Import</button>
+            <button class="btn btn-small" id="gSignOut">Sign Out</button>
+          </div>
+          <div class="bp-input-row" style="margin-top:6px">
+            <input type="text" id="gClientId" placeholder="Google Client ID (optional)" spellcheck="false" />
+            <button class="btn btn-small" id="gSetId">Set</button>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="bp-body bp-pass" id="bpPass" style="display:none">
+          <div class="bp-row">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><rect x="3" y="9" width="14" height="10" rx="1.5"/><path d="M6 9V6a4 4 0 0 1 8 0v3"/></svg>
+            <span>Password Encrypted Backup</span>
+          </div>
+          <div class="bp-input-row">
+            <input type="password" id="pwdInput" placeholder="Enter encryption password..." spellcheck="false" />
+            <button class="btn btn-small btn-primary" id="pwdUnlock">Unlock</button>
+          </div>
+          <div class="bp-status" id="pwdStatus">Locked</div>
+          <div class="bp-actions" id="pwdActions" style="display:none">
+            <button class="btn btn-small" id="pwdExport">Export</button>
+            <button class="btn btn-small" id="pwdImport">Import</button>
+            <button class="btn btn-small" id="pwdLock">Lock</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Window -->
   <div class="window">
     <div class="window-body">
 
@@ -47,9 +146,14 @@
             <p class="brand-sub" id="accountCount">0 accounts</p>
           </div>
         </div>
-        <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+        <div class="header-actions">
+          <button class="btn btn-icon" id="backupTrigger" title="Secure Backup">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2a6 6 0 0 0-6 6v3a2 2 0 0 0-2 2v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a2 2 0 0 0-2-2V8a6 6 0 0 0-6-6z"/><circle cx="10" cy="13" r="1.5"/><path d="M10 10v2"/></svg>
+          </button>
+          <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
       </header>
 
       <main>
@@ -69,8 +173,7 @@
             <div class="timer-ring-preview">
               <svg viewBox="0 0 44 44">
                 <circle class="tp-track" cx="22" cy="22" r="18" />
-                <circle class="tp-fill" id="tpFill" cx="22" cy="22" r="18"
-                stroke-dasharray="113.09" stroke-dashoffset="0" />
+                <circle class="tp-fill" id="tpFill" cx="22" cy="22" r="18" stroke-dasharray="113.09" stroke-dashoffset="0" />
               </svg>
               <span class="tp-text" id="tpText">30</span>
             </div>
@@ -84,61 +187,6 @@
             </div>
             <p class="empty-title">No accounts yet</p>
             <p class="empty-sub">Add your first account below</p>
-          </div>
-        </div>
-
-        <div class="backup-panel" id="backupPanel" style="display:none">
-          <div class="bp-tabs">
-            <button class="bp-tab active" data-tab="metamask">MetaMask</button>
-            <button class="bp-tab" data-tab="google">Google</button>
-            <button class="bp-tab" data-tab="password">Password</button>
-          </div>
-
-          <div class="bp-body bp-meta" id="bpMeta">
-            <div class="bp-row">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><path d="M4 4h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M4 8h12"/><path d="M8 4v4"/></svg>
-              <span>MetaMask Encrypted Backup</span>
-            </div>
-            <div class="bp-actions">
-              <button class="btn btn-small" id="metaExport">Export</button>
-              <button class="btn btn-small" id="metaImport">Import</button>
-            </div>
-          </div>
-
-          <div class="bp-body bp-google" id="bpGoogle" style="display:none">
-            <div class="bp-row">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><circle cx="10" cy="10" r="9"/><circle cx="10" cy="10" r="4"/><line x1="10" y1="1" x2="10" y2="3"/><line x1="10" y1="17" x2="10" y2="19"/><line x1="1" y1="10" x2="3" y2="10"/><line x1="17" y1="10" x2="19" y2="10"/></svg>
-              <span>Google Sign-In Backup</span>
-            </div>
-            <div id="gButton"></div>
-            <div class="bp-status" id="gStatus">Not signed in</div>
-            <div class="bp-actions" id="gActions" style="display:none">
-              <button class="btn btn-small" id="gExport">Export</button>
-              <button class="btn btn-small" id="gImport">Import</button>
-              <button class="btn btn-small" id="gSignOut">Sign Out</button>
-            </div>
-            <div class="bp-note">Need a Google Client ID? <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Create one</a> and add below</div>
-            <div class="bp-input-row">
-              <input type="text" id="gClientId" placeholder="Paste Google Client ID..." spellcheck="false" />
-              <button class="btn btn-small" id="gSetId">Set</button>
-            </div>
-          </div>
-
-          <div class="bp-body bp-pass" id="bpPass" style="display:none">
-            <div class="bp-row">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><rect x="3" y="9" width="14" height="10" rx="1.5"/><path d="M6 9V6a4 4 0 0 1 8 0v3"/></svg>
-              <span>Password Encrypted Backup</span>
-            </div>
-            <div class="bp-input-row">
-              <input type="password" id="pwdInput" placeholder="Enter encryption password..." spellcheck="false" />
-              <button class="btn btn-small" id="pwdUnlock">Unlock</button>
-            </div>
-            <div class="bp-status" id="pwdStatus">Locked</div>
-            <div class="bp-actions" id="pwdActions" style="display:none">
-              <button class="btn btn-small" id="pwdExport">Export</button>
-              <button class="btn btn-small" id="pwdImport">Import</button>
-              <button class="btn btn-small" id="pwdLock">Lock</button>
-            </div>
           </div>
         </div>
 
@@ -179,20 +227,12 @@
 
       </main>
 
-      <div class="wallet-section">
-        <div class="wallet-info">
-          <span class="wallet-label">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/><circle cx="8" cy="8" r="1.5"/><path d="M5 2v1h6V2"/></svg>
-            Wallet
-          </span>
-          <span class="wallet-status" id="walletStatus">Not connected</span>
-          <span class="wallet-address" id="walletAddress"></span>
-        </div>
-        <button class="btn btn-small btn-wallet" id="walletBtn">Connect Wallet</button>
-      </div>
-
       <footer>
-        <p>Secured with Web Crypto API</p>
+        <p>Secured with Argon2id + AES-256-GCM + WebAuthn</p>
+        <a class="github-link" href="https://github.com/ImranDev3/2fa-Authenticator-" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="currentColor" style="width:12px;height:12px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          Open Source (MIT)
+        </a>
       </footer>
 
     </div>
@@ -201,7 +241,7 @@
   <script src="js/totp.js"></script>
   <script src="js/qr.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/wallet.js"></script>
+  <script src="js/backup.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
