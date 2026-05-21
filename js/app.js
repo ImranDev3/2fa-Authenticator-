@@ -9,6 +9,9 @@ window.Authenticator = window.Authenticator || {};
     Authenticator.renderList();
     Authenticator.startGlobalTimer();
     Authenticator.bootBackup();
+    Authenticator.initWasmCrypto().then(function() {
+      Authenticator.updateCryptoProof();
+    });
     Authenticator.updateCryptoProof();
 
     // Migrate old single-account data

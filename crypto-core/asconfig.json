@@ -1,0 +1,8 @@
+{
+  "entries": ["assembly/index.ts"],
+  "options": {
+    "outFile": "build/crypto-core.wasm",
+    "optimize": true,
+    "exportRuntime": true
+  }
+}

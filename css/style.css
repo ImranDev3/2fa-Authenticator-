@@ -1494,3 +1494,59 @@ footer {
 .dark .arch-output {
   background: linear-gradient(135deg, rgba(10,132,255,0.06), rgba(94,92,230,0.06));
 }
+
+/* ── Language Tags ── */
+
+.arch-langs {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.arch-lang {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text-tertiary);
+}
+
+.arch-lang-wasm {
+  border-color: rgba(101,84,192,0.4);
+  color: #6554C0;
+  background: rgba(101,84,192,0.06);
+}
+
+.arch-lang-rust {
+  border-color: rgba(239,78,39,0.4);
+  color: #EF4E27;
+  background: rgba(239,78,39,0.06);
+}
+
+.arch-lang-js {
+  border-color: rgba(247,223,30,0.4);
+  color: #F7DF1E;
+  background: rgba(247,223,30,0.08);
+}
+
+.arch-lang-py {
+  border-color: rgba(55,118,172,0.4);
+  color: #3776AB;
+  background: rgba(55,118,172,0.06);
+}
+
+.arch-lang-html {
+  border-color: rgba(227,76,38,0.4);
+  color: #E34C26;
+  background: rgba(227,76,38,0.06);
+}
+
+.dark .arch-lang {
+  background: rgba(255,255,255,0.03);
+}

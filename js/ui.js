@@ -298,13 +298,21 @@ window.Authenticator = window.Authenticator || {};
   Authenticator.updateCryptoProof = async function() {
     try {
       var data = new TextEncoder().encode(JSON.stringify(Authenticator.accounts));
-      // BTC SHA-256
-      var sha256Hash = await crypto.subtle.digest('SHA-256', data);
-      var sha256hex = Array.from(new Uint8Array(sha256Hash)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
       var btcEl = document.getElementById('btcHash');
-      if (btcEl) btcEl.textContent = sha256hex;
-      // ETH Keccak-256 (via ethers.js)
       var ethEl = document.getElementById('ethHash');
+
+      // BTC SHA-256: prefer WASM, fallback Web Crypto API
+      if (btcEl) {
+        if (Authenticator.wasmCrypto && Authenticator.wasmCrypto.ready && Authenticator.wasmCrypto.sha256Hex) {
+          btcEl.textContent = Authenticator.wasmCrypto.sha256Hex(data);
+        } else {
+          var sha256Hash = await crypto.subtle.digest('SHA-256', data);
+          var sha256hex = Array.from(new Uint8Array(sha256Hash)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+          btcEl.textContent = sha256hex;
+        }
+      }
+
+      // ETH Keccak-256 (via ethers.js)
       if (ethEl && typeof ethers !== 'undefined') {
         var keccakHex = ethers.utils.keccak256(data);
         ethEl.textContent = keccakHex;
