@@ -61,12 +61,7 @@ window.Authenticator = window.Authenticator || {};
       Authenticator.showToast('Invalid secret key.', 'error');
     }
   });
-  $.secretInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') $.setSecretBtn.click();
-  });
-  $.issuerInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') $.setSecretBtn.click();
-  });
+
 
   // Preview copy
   $.otpDisplay.addEventListener('click', Authenticator.copyPreviewCode);

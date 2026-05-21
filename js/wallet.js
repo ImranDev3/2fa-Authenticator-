@@ -23,11 +23,21 @@ window.Authenticator = window.Authenticator || {};
       const signer = provider.getSigner();
       const address = accounts[0];
 
-      const message = 'Authenticator Wallet Sync\n\nSign this message to encrypt and sync your 2FA accounts.\nWallet: ' + address + '\nTimestamp: ' + Date.now();
+      const message = 'Authenticator Sync v2\nWallet: ' + address + '\nTimestamp: ' + Date.now();
       const signature = await signer.signMessage(message);
 
-      const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(signature));
-      const key = await crypto.subtle.importKey('raw', hash, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(signature), 'PBKDF2', false, ['deriveKey']);
+      const key = await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+
+      Authenticator.wallet.salt = salt;
 
       Authenticator.wallet.address = address;
       Authenticator.wallet.provider = provider;
@@ -81,10 +91,12 @@ window.Authenticator = window.Authenticator || {};
       combined.set(iv, 0);
       combined.set(new Uint8Array(encrypted), iv.length);
 
+      const saltB64 = btoa(String.fromCharCode.apply(null, Authenticator.wallet.salt));
       const base64 = btoa(String.fromCharCode.apply(null, combined));
       const payload = JSON.stringify({
-        v: 1,
+        v: 2,
         w: Authenticator.wallet.address,
+        s: saltB64,
         d: base64
       });
 
@@ -116,13 +128,29 @@ window.Authenticator = window.Authenticator || {};
         return false;
       }
 
+      let importKey = Authenticator.wallet.encryptionKey;
+      if (data.v >= 2 && data.s) {
+        const signature = await Authenticator.wallet.signer.signMessage(
+          'Authenticator Sync v2\nWallet: ' + Authenticator.wallet.address + '\nTimestamp: ' + Date.now()
+        );
+        const salt = Uint8Array.from(atob(data.s), c => c.charCodeAt(0));
+        const keyMaterial = await crypto.subtle.importKey('raw', new TextEncoder().encode(signature), 'PBKDF2', false, ['deriveKey']);
+        importKey = await crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
+          keyMaterial,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      }
+
       const combined = Uint8Array.from(atob(data.d), c => c.charCodeAt(0));
       const iv = combined.slice(0, 12);
       const encrypted = combined.slice(12);
 
       const decrypted = await crypto.subtle.decrypt(
         { name: 'AES-GCM', iv },
-        Authenticator.wallet.encryptionKey,
+        importKey,
         encrypted
       );
 
