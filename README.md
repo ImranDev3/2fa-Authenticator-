@@ -1,129 +1,152 @@
-<div align="center">
-  <br/>
-  <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
-  <br/><br/>
-</div>
+# Authenticator
 
-# 2FA Authenticator
+> **World's most secure client-side TOTP 2FA authenticator** — Argon2id + AES-256-GCM + WebAuthn + MetaMask + Google Sign-In.
 
-> A modern, client-side TOTP (Time-based One-Time Password) authenticator built with vanilla JavaScript, featuring QR code scanning, camera integration, and dark mode support. No server required — everything runs securely in your browser using the Web Crypto API.
+A fully client-side, zero-server, **Progressive Web App (PWA)** for managing Time-based One-Time Password (TOTP) codes. All secrets are encrypted at rest using military-grade cryptography and never leave your device.
 
 ## Features
 
-- **TOTP Generation** — RFC 6238 compliant 6-digit codes using SHA-1 HMAC via the Web Crypto API
-- **QR Code Scanning** — Upload an image, drag & drop, paste from clipboard, or use your device camera
-- **Manual Entry** — Paste a Base32 secret key directly for accounts without QR setup
-- **30-Second Rotation** — Automatic code refresh with a visual countdown timer ring
-- **Camera Support** — Real-time QR scanning via `getUserMedia` with environment-facing camera
-- **Dark Mode** — System-friendly theme toggle persisted to `localStorage`
-- **Persistent State** — Last used secret and issuer saved across sessions
-- **Keyboard Shortcuts** — Press `C` to copy code, `R` to reset
-- **Copy to Clipboard** — Click the code or press the Copy button
-- **Responsive Design** — Optimized for desktop, tablet, and mobile viewports
+- **Multi-Account TOTP** — Add unlimited accounts, each with live 30-second rotating codes and visual timer rings.
+- **QR Scan** — Upload, drag-and-drop, paste, or live camera scan to add accounts instantly.
+- **Manual Entry** — Type or paste Base32 secrets. Live OTP preview as you type.
+- **Search & Filter** — Quickly find accounts by name.
+- **World-Class Security** — Argon2id (64MB memory-hard KDF), AES-256-GCM encryption, WebAuthn FIDO2 hardware keys.
+- **Multiple Backup Methods:**
+  - **MetaMask** — Sign with your wallet, encrypted backup via Argon2id + AES-256-GCM.
+  - **Google Sign-In** — Backup encrypted with your Google identity.
+  - **Password** — Strong password → Argon2id → encrypted backup.
+  - **WebAuthn / FIDO2** — Windows Hello, Touch ID, Face ID, YubiKey.
+- **Open Source (MIT)** — Fully auditable. No hidden code, no telemetry, no servers.
+- **PWA** — Install as a native app. Works offline.
+- **Wake Lock** — Screen stays on while viewing codes.
+- **macOS-Style UI** — Frosted glass backdrop, pill buttons, deep dark mode, smooth animations.
 
-## How It Works
+## Security Architecture
 
-This is a pure **client-side TOTP implementation**. No data is sent to any server.
+```
+User Secret (MetaMask signature / Google token / Password / WebAuthn assertion)
+    │
+    ▼
+┌──────────────────────────────────────┐
+│  Argon2id KDF                        │
+│  Memory: 64MB | Iterations: 3        │
+│  Parallelism: 1 | Salt: 16 bytes     │
+│  (Falls back to PBKDF2-1M if WASM    │
+│   unavailable)                        │
+└──────────────────────────────────────┘
+    │
+    ▼
+┌──────────────────────────────────────┐
+│  AES-256-GCM Encryption              │
+│  Key: 256-bit derived key            │
+│  IV: 96-bit random per encryption    │
+│  Tag: 128-bit authentication         │
+└──────────────────────────────────────┘
+    │
+    ▼
+┌──────────────────────────────────────┐
+│  Encrypted Backup JSON               │
+│  { v: 3, m: "method", s: "salt",    │
+│    d: "iv + ciphertext + tag" }      │
+|  Auto-clears from clipboard in 30s   │
+└──────────────────────────────────────┘
+```
 
-1. **Secret Input** — Provide a Base32-encoded secret key via QR scan, image upload, camera, clipboard paste, or manual text entry
-2. **HMAC-SHA1** — The secret is decoded and used with the current Unix timestamp (divided into 30-second intervals) to generate an HMAC-SHA1 signature
-3. **Code Extraction** — The last 4 bits of the HMAC determine an offset; 4 bytes are extracted from that position, masked, and reduced modulo 1,000,000 to produce a 6-digit code
-4. **Display & Refresh** — The code is displayed with a 30-second countdown timer; it automatically regenerates at each interval boundary
-
-## Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| **Web Crypto API** (`crypto.subtle`) | HMAC-SHA1 signing for TOTP generation |
-| **jsQR** | Pure JavaScript QR code decoder (no external API calls) |
-| **`getUserMedia`** | Camera access for live QR scanning |
-| **localStorage** | Persist secret key, issuer name, and theme preference |
-| **CSS Custom Properties** | Theming engine for light and dark modes |
-| **Vanilla JS (IIFE)** | Zero-dependency module pattern |
+- **Session auto-locks** after 5 minutes of inactivity.
+- **Clipboard auto-clears** 30 seconds after copying backup.
+- **Subresource Integrity (SRI)** on all external CDN scripts.
+- **No servers.** All crypto runs in your browser. No data leaves your device.
 
 ## Getting Started
 
-### 1. Clone the repository
+### Online
+Open **[https://ImranDev3.github.io/2fa-Authenticator-](https://ImranDev3.github.io/2fa-Authenticator-)** in any modern browser.
 
+### Offline (local)
 ```bash
 git clone https://github.com/ImranDev3/2fa-Authenticator-.git
 cd 2fa-Authenticator-
+# Open index.html in your browser
 ```
 
-### 2. Serve locally
-
-Since this app uses ES modules and camera APIs, serve it over HTTP. You can use any static file server:
-
+Or serve with any HTTP server:
 ```bash
-# Using Python
-python -m http.server 8080
-
-# Using Node.js (npx)
 npx serve .
-
-# Using VS Code Live Server extension
 ```
 
-### 3. Open in browser
+### Install as PWA
+1. Open the app in Chrome/Edge.
+2. Click the install icon in the address bar (or ⋮ → Install Authenticator).
+3. Launch from your desktop/start menu — works offline.
 
-Navigate to `http://localhost:8080` (or your server's address).
+## Usage
 
-## Usage Guide
+1. **Add an account** — Scan a QR code, paste an image, or type a Base32 secret.
+2. **View codes** — 6-digit codes refresh every 30 seconds with visual timer.
+3. **Copy a code** — Click the code, click the copy button, or double-click the row.
+4. **Backup your accounts** — Click the 🔒 shield icon in the header.
+   - Connect MetaMask → Export
+   - Sign in with Google → Export
+   - Set a password → Export
+   - Register a hardware key → Unlock → Export
+5. **Restore** — Same shield icon, choose Import, paste your encrypted JSON.
 
-### Adding an Account
+## Google Client ID (optional)
 
-1. **Scan QR Code** — Click the "Scan QR" card, then upload an image, drag & drop one, or press `Ctrl+V` to paste from clipboard
-2. **Use Camera** — Click the "Camera" button to scan directly with your device camera
-3. **Manual Entry** — Type or paste the Base32 secret key into the input field and click "Set"
+For Google Sign-In backup, you need a Google OAuth Client ID:
+1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create a new OAuth 2.0 Client ID (Web application)
+3. Add `http://localhost` and your production URL to Authorized JavaScript origins
+4. Paste the Client ID in the app
 
-### Managing Codes
+## Tech Stack
 
-- Click the displayed code or the **Copy** button to copy it to your clipboard
-- The timer ring shows remaining seconds before the code refreshes
-- Press **`C`** to copy, **`R`** to reset
-- Click **Reset** to clear all data and start fresh
+| Layer | Technology |
+|-------|-----------|
+| Crypto KDF | Argon2id (WASM) / PBKDF2-SHA256 (1M iterations) |
+| Encryption | AES-256-GCM (Web Crypto API) |
+| Hardware Auth | WebAuthn / FIDO2 (platform authenticator) |
+| Wallet | MetaMask via ethers.js |
+| Google Auth | Google Identity Services (GIS) |
+| QR | jsQR — pure JS QR decoder |
+| UI | Vanilla JS, CSS (macOS-style) |
+| PWA | Service Worker + Web App Manifest |
+| Wake Lock | Screen Wake Lock API |
+| Format | TOTP (RFC 6238) — SHA-1, 30s interval, 6 digits |
 
-### Restoring a Previous Secret
+## Browser Support
 
-If you've used the app before, the last secret is shown below the manual entry field. Click it to restore.
+Chrome, Edge, Firefox, Safari, and any Chromium-based browser. Requires:
+- `Web Cryptography API` for encryption
+- `WebAuthn API` for hardware key support
+- `Service Worker` for PWA offline support
+- `Screen Wake Lock API` for always-on display
 
-## File Structure
+## Project Structure
 
 ```
-OTPFlow/
-├── index.html          # Main HTML with semantic structure and SVG icons
-├── css/
-│   └── style.css       # Full stylesheet with light/dark themes and responsive breakpoints
-└── js/
-    └── app.js          # Application logic (TOTP, QR decoding, camera, UI)
+├── index.html          # Main HTML
+├── manifest.json       # PWA manifest
+├── sw.js               # Service worker
+├── LICENSE             # MIT license
+├── js/
+│   ├── totp.js         # TOTP generation (RFC 6238)
+│   ├── qr.js           # QR scan, camera, paste
+│   ├── ui.js           # UI rendering, timers, theme
+│   ├── backup.js       # Auth, encryption, WebAuthn
+│   └── app.js          # Events, boot
+└── css/
+    └── style.css       # macOS-style stylesheet
 ```
 
-## Security
+## Security Auditing
 
-- **Zero server dependency** — all computation happens in your browser
-- **Web Crypto API** — uses the browser's native cryptographic implementation for HMAC-SHA1
-- **No network requests** — the app does not send your secrets or codes anywhere
-- **localStorage only** — secrets are stored locally and never transmitted
-- **Camera access** — video feed is processed locally; no frames leave your device
-
-## Browser Compatibility
-
-Works in all modern browsers that support:
-- `crypto.subtle` (Web Crypto API)
-- `navigator.mediaDevices.getUserMedia`
-- `URLSearchParams`
-- CSS Custom Properties
-- `fetch` / ES2015+
-
-Tested on Chrome, Firefox, Safari, and Edge.
+All code is inspectable from browser DevTools via the global `window.Authenticator` namespace. Every function, variable, and key is fully exposed for independent security auditing.
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+MIT — see [LICENSE](LICENSE).
 
 ---
 
-<p align="center">
-  Made with ❤️ for secure two-factor authentication
-</p>
+**GitHub:** [github.com/ImranDev3/2fa-Authenticator-](https://github.com/ImranDev3/2fa-Authenticator-)
