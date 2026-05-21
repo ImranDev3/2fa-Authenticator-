@@ -158,7 +158,4 @@ Required only for Google Sign-In backup:
 
 MIT — see [LICENSE](LICENSE).
 
----
-
-**Website:** [2faotp.vercel.app](https://2faotp.vercel.app)  
-**GitHub:** [github.com/ImranDev3/2fa-Authenticator-](https://github.com/ImranDev3/2fa-Authenticator-)
+**Website:** [2faotp.vercel.app](https://2faotp.vercel.app)
