@@ -108,4 +108,19 @@ window.Authenticator = window.Authenticator || {};
   // Boot
   init();
   Authenticator.checkWalletConnection();
+
+  // PWA - register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // Keep screen awake while viewing codes
+  if ('wakeLock' in navigator) {
+    let lock = null;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && Authenticator.accounts.length) {
+        navigator.wakeLock.request('screen').then(l => lock = l).catch(() => {});
+      } else if (lock) { lock.release(); lock = null; }
+    });
+  }
 })();

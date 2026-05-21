@@ -130,13 +130,21 @@ window.Authenticator = window.Authenticator || {};
         </button>
       `;
 
+      const codeEl = el.querySelector('.account-code');
+      codeEl.addEventListener('click', function(e) {
+        e.stopPropagation();
+        Authenticator.copyCode(account.id);
+      });
       el.querySelector('.account-copy').addEventListener('click', function(e) {
         e.stopPropagation();
-        Authenticator.copyCode(this.dataset.id);
+        Authenticator.copyCode(account.id);
       });
       el.querySelector('.account-delete').addEventListener('click', function(e) {
         e.stopPropagation();
-        Authenticator.deleteAccount(this.dataset.id);
+        Authenticator.deleteAccount(account.id);
+      });
+      el.addEventListener('dblclick', function() {
+        Authenticator.copyCode(account.id);
       });
 
       $.accountList.appendChild(el);
