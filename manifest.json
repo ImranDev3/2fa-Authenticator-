@@ -1,7 +1,7 @@
 {
   "name": "Authenticator - 2FA TOTP",
   "short_name": "Authenticator",
-  "description": "TOTP two-factor authentication codes in your browser. Web3 wallet encrypted backup.",
+  "description": "Client-side TOTP authenticator with Argon2id AES-256-GCM encryption, Web3/Bitcoin/WebAuthn/Google/Password backup, WASM crypto, PWA offline.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f5f5f7",
