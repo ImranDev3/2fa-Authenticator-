@@ -76,6 +76,23 @@ window.Authenticator = window.Authenticator || {};
     if (e.target === $.cameraModal) Authenticator.stopCamera();
   });
 
+  // Wallet
+  document.getElementById('walletBtn').addEventListener('click', function() {
+    if (Authenticator.wallet.address) {
+      Authenticator.disconnectWallet();
+    } else {
+      Authenticator.connectWallet();
+    }
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    Authenticator.exportEncryptedBackup();
+  });
+
+  document.getElementById('importBtn').addEventListener('click', function() {
+    Authenticator.importEncryptedBackup();
+  });
+
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if ((e.key === 'c' || e.key === 'C') && !e.ctrlKey && !e.metaKey && Authenticator.accounts.length === 1) {
@@ -85,4 +102,5 @@ window.Authenticator = window.Authenticator || {};
 
   // Boot
   init();
+  Authenticator.checkWalletConnection();
 })();

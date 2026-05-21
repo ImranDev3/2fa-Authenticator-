@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
 
@@ -62,6 +63,23 @@
           </div>
         </div>
 
+        <div class="wallet-bar" id="backupSection" style="display:none">
+          <div class="wallet-bar-left">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M4 4h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M4 8h12"/><path d="M8 4v4"/></svg>
+            <span>Backup</span>
+          </div>
+          <div class="wallet-bar-actions">
+            <button class="btn btn-small" id="exportBtn" title="Copy encrypted backup">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 1h5a1 1 0 0 1 1 1v5"/><path d="M7 17H2a1 1 0 0 1-1-1v-5"/><path d="M17 1L7 11"/></svg>
+              Export
+            </button>
+            <button class="btn btn-small" id="importBtn" title="Paste encrypted backup to restore">
+              <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 7V2a1 1 0 0 1 1-1h5"/><path d="M17 11v5a1 1 0 0 1-1 1h-5"/><path d="M1 17L17 1"/></svg>
+              Import
+            </button>
+          </div>
+        </div>
+
         <div class="section-divider">
           <span>Add Account</span>
         </div>
@@ -99,6 +117,18 @@
 
       </main>
 
+      <div class="wallet-section">
+        <div class="wallet-info">
+          <span class="wallet-label">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M12 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/><circle cx="8" cy="8" r="1.5"/><path d="M5 2v1h6V2"/></svg>
+            Wallet
+          </span>
+          <span class="wallet-status" id="walletStatus">Not connected</span>
+          <span class="wallet-address" id="walletAddress"></span>
+        </div>
+        <button class="btn btn-small btn-wallet" id="walletBtn">Connect Wallet</button>
+      </div>
+
       <footer>
         <p>Secured with Web Crypto API</p>
       </footer>
@@ -109,6 +139,7 @@
   <script src="js/totp.js"></script>
   <script src="js/qr.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/wallet.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
