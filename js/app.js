@@ -9,6 +9,7 @@ window.Authenticator = window.Authenticator || {};
     Authenticator.renderList();
     Authenticator.startGlobalTimer();
     Authenticator.bootBackup();
+    Authenticator.updateCryptoProof();
 
     // Migrate old single-account data
     try {
@@ -75,6 +76,20 @@ window.Authenticator = window.Authenticator || {};
   document.getElementById('metaImport').addEventListener('click', function() {
     if (Authenticator.auth.metamask.key) { Authenticator.importBackup(); }
     else { Authenticator.showToast('Unlock MetaMask first.', 'error'); }
+  });
+
+  // ── Bitcoin ──
+  document.getElementById('btcConnect').addEventListener('click', function() {
+    if (Authenticator.auth.bitcoin.address) { Authenticator.btcDisconnect(); }
+    else { Authenticator.btcConnect(); }
+  });
+  document.getElementById('btcExport').addEventListener('click', function() {
+    if (Authenticator.auth.bitcoin.key) { Authenticator.exportBackup(); }
+    else { Authenticator.showToast('Connect BTC wallet first.', 'error'); }
+  });
+  document.getElementById('btcImport').addEventListener('click', function() {
+    if (Authenticator.auth.bitcoin.key) { Authenticator.importBackup(); }
+    else { Authenticator.showToast('Connect BTC wallet first.', 'error'); }
   });
 
   // ── WebAuthn ──

@@ -79,6 +79,7 @@ window.Authenticator = window.Authenticator || {};
       localStorage.setItem('2fa_accounts', JSON.stringify(data));
       $.accountCount.textContent = data.length + ' account' + (data.length !== 1 ? 's' : '');
     } catch {}
+    Authenticator.updateCryptoProof();
   };
 
   Authenticator.loadAccounts = function() {
@@ -291,6 +292,26 @@ window.Authenticator = window.Authenticator || {};
       Authenticator.updatePreviewCode();
       Authenticator.previewTimer = setInterval(Authenticator.updatePreviewCode, 30000);
     }, ms);
+  };
+
+  /* ── Live Crypto Proof: BTC SHA-256 + ETH Keccak-256 ── */
+  Authenticator.updateCryptoProof = async function() {
+    try {
+      var data = new TextEncoder().encode(JSON.stringify(Authenticator.accounts));
+      // BTC SHA-256
+      var sha256Hash = await crypto.subtle.digest('SHA-256', data);
+      var sha256hex = Array.from(new Uint8Array(sha256Hash)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+      var btcEl = document.getElementById('btcHash');
+      if (btcEl) btcEl.textContent = sha256hex;
+      // ETH Keccak-256 (via ethers.js)
+      var ethEl = document.getElementById('ethHash');
+      if (ethEl && typeof ethers !== 'undefined') {
+        var keccakHex = ethers.utils.keccak256(data);
+        ethEl.textContent = keccakHex;
+      } else if (ethEl) {
+        ethEl.textContent = 'ethers.js not loaded';
+      }
+    } catch (e) {}
   };
 
   Authenticator.copyPreviewCode = function() {

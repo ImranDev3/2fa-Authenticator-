@@ -49,6 +49,7 @@
       <div class="modal-body">
         <div class="bp-tabs">
           <button class="bp-tab active" data-tab="metamask">MetaMask</button>
+          <button class="bp-tab" data-tab="bitcoin">Bitcoin</button>
           <button class="bp-tab" data-tab="webauthn">WebAuthn</button>
           <button class="bp-tab" data-tab="google">Google</button>
           <button class="bp-tab" data-tab="password">Password</button>
@@ -70,6 +71,25 @@
             <button class="btn btn-small" id="metaImport" disabled>Import</button>
           </div>
           <div class="bp-status" id="metaStatus">Disconnected</div>
+        </div>
+
+        <!-- Bitcoin -->
+        <div class="bp-body bp-bitcoin" id="bpBitcoin" style="display:none">
+          <div class="bp-row">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px"><circle cx="10" cy="10" r="7.5"/><path d="M7 6h4.5a2.5 2.5 0 0 1 0 5H7m0-5v8m1.5-8v-1m0 9v1m3-7a2.5 2.5 0 0 1 0 5"/></svg>
+            <span>Bitcoin Wallet (BTC) Encrypted Backup</span>
+          </div>
+          <div id="btcAccount" class="bp-account"></div>
+          <div class="bp-note">Supports Leather, Unisat, Xverse, OKX</div>
+          <div class="bp-actions">
+            <button class="btn btn-small btn-primary" id="btcConnect">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M8 1v7m0 0l3-3m-3 3L5 5"/><path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9"/></svg>
+              Connect
+            </button>
+            <button class="btn btn-small" id="btcExport" disabled>Export</button>
+            <button class="btn btn-small" id="btcImport" disabled>Import</button>
+          </div>
+          <div class="bp-status" id="btcStatus">Disconnected</div>
         </div>
 
         <!-- WebAuthn -->
@@ -194,29 +214,40 @@
 
           <!-- Row 3: Auth Type -->
           <div class="arch-row">
-            <div class="arch-node arch-method">
+            <div class="arch-node arch-method arch-eth">
               <div class="arch-icon">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 4h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><circle cx="10" cy="9" r="1.5"/><path d="M7 13c0-1.66 1.34-3 3-3s3 1.34 3 3"/></svg>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M10 1v6l5 2.5L10 1z"/><path d="M10 13v6l5-3.5L10 13z"/><path d="M10 1v6l-5 2.5L10 1z"/><path d="M10 13v6l-5-3.5L10 13z"/><path d="M10 1v6l-5 2.5L10 1z"/></svg>
               </div>
-              <span>MetaMask</span>
+              <span><strong>ETH</strong> MetaMask</span>
+              <span class="arch-tag">ECDSA · secp256k1</span>
+            </div>
+            <div class="arch-node arch-method arch-btc">
+              <div class="arch-icon">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="10" cy="10" r="7.5"/><path d="M7 6h4.5a2.5 2.5 0 0 1 0 5H7m0-5v8m1.5-8v-1m0 9v1m3-7a2.5 2.5 0 0 1 0 5"/></svg>
+              </div>
+              <span><strong>BTC</strong> Wallet</span>
+              <span class="arch-tag">SHA-256 · secp256k1</span>
             </div>
             <div class="arch-node arch-method">
-              <div class="arch-icon arch-icon-guard">
+              <div class="arch-icon">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="7" width="14" height="12" rx="1.5"/><path d="M6 7V4a4 4 0 0 1 8 0v3"/><circle cx="10" cy="12" r="1.2"/></svg>
               </div>
               <span>WebAuthn</span>
+              <span class="arch-tag">FIDO2</span>
             </div>
             <div class="arch-node arch-method">
               <div class="arch-icon">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="10" cy="10" r="7.5"/><circle cx="10" cy="10" r="3"/></svg>
               </div>
               <span>Google</span>
+              <span class="arch-tag">OAuth 2.0</span>
             </div>
             <div class="arch-node arch-method">
               <div class="arch-icon">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="9" width="14" height="10" rx="1.5"/><path d="M6 9V6a4 4 0 0 1 8 0v3"/></svg>
               </div>
               <span>Password</span>
+              <span class="arch-tag">PBKDF2</span>
             </div>
           </div>
 
@@ -265,6 +296,28 @@
           </div>
 
           <!-- Session features -->
+          <!-- Crypto Proof: BTC SHA-256 + ETH Keccak-256 -->
+          <div class="arch-proof">
+            <div class="arch-proof-header">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:13px;height:13px"><path d="M12 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/><path d="M8 5v4m0 0l-2-2m2 2l2-2"/></svg>
+              Live Crypto Proof
+            </div>
+            <div class="arch-proof-row">
+              <span class="arch-proof-label">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="width:10px;height:10px"><circle cx="6" cy="6" r="4.5"/><path d="M6 3v3l2 1.5"/></svg>
+                BTC SHA-256
+              </span>
+              <span class="arch-proof-hash" id="btcHash">—</span>
+            </div>
+            <div class="arch-proof-row">
+              <span class="arch-proof-label">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="width:10px;height:10px"><polygon points="6 1 10 4 10 8 6 11 2 8 2 4 6 1"/></svg>
+                ETH Keccak-256
+              </span>
+              <span class="arch-proof-hash" id="ethHash">—</span>
+            </div>
+          </div>
+
           <div class="arch-features">
             <div class="arch-feature">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><polyline points="8 4 8 8 11 10"/></svg>
@@ -388,7 +441,7 @@
       </main>
 
       <footer>
-        <p>Secured with Argon2id + AES-256-GCM + WebAuthn</p>
+        <p>Secured with Argon2id · AES-256-GCM · WebAuthn · BTC SHA-256 · ETH Keccak-256</p>
         <a class="github-link" href="https://github.com/ImranDev3/2fa-Authenticator-" target="_blank" rel="noopener">
           <svg viewBox="0 0 16 16" fill="currentColor" style="width:12px;height:12px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
           Open Source (MIT)

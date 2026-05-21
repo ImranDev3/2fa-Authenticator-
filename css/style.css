@@ -1111,6 +1111,113 @@ footer {
   border-top-color: var(--border);
 }
 
+/* ETH & BTC colored nodes */
+.arch-eth {
+  border-color: rgba(98,126,234,0.35);
+  background: rgba(98,126,234,0.05);
+}
+
+.arch-eth .arch-icon { color: #627EEA; }
+
+.arch-btc {
+  border-color: rgba(247,147,26,0.35);
+  background: rgba(247,147,26,0.05);
+}
+
+.arch-btc .arch-icon { color: #F7931A; }
+
+.arch-tag {
+  display: block;
+  font-size: 7px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.arch-method {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 12px;
+  gap: 2px;
+  min-width: 68px;
+}
+
+.arch-method strong {
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.arch-method span:not(.arch-tag) {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.dark .arch-eth {
+  background: rgba(98,126,234,0.08);
+}
+
+.dark .arch-btc {
+  background: rgba(247,147,26,0.08);
+}
+
+/* ── Live Crypto Proof (BTC SHA-256 / ETH Keccak-256) ── */
+
+.arch-proof {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.arch-proof-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.arch-proof-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.arch-proof-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.arch-proof-hash {
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 8px;
+  color: var(--text-tertiary);
+  word-break: break-all;
+  line-height: 1.3;
+  max-height: 28px;
+  overflow: hidden;
+}
+
+.dark .arch-proof {
+  background: rgba(255,255,255,0.03);
+}
+
 /* ── Architecture Diagram ── */
 
 .modal-arch {

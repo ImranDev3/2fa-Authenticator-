@@ -9,6 +9,7 @@ window.Authenticator = window.Authenticator || {};
   // ── Auth state objects ──
   Authenticator.auth = {
     metamask: { address: null, provider: null, signer: null, key: null, salt: null },
+    bitcoin: { address: null, provider: null, key: null, salt: null },
     webauthn: { credentialId: null, key: null, salt: null, registered: false },
     google: { credential: null, key: null, salt: null },
     password: { key: null, salt: null }
@@ -16,16 +17,17 @@ window.Authenticator = window.Authenticator || {};
 
   function getKey() {
     var a = Authenticator.auth;
-    return a.metamask.key || a.webauthn.key || a.google.key || a.password.key;
+    return a.metamask.key || a.bitcoin.key || a.webauthn.key || a.google.key || a.password.key;
   }
 
   function getSalt() {
     var a = Authenticator.auth;
-    return a.metamask.salt || a.webauthn.salt || a.google.salt || a.password.salt;
+    return a.metamask.salt || a.bitcoin.salt || a.webauthn.salt || a.google.salt || a.password.salt;
   }
 
   function sourceLabel() {
     if (Authenticator.auth.metamask.key) return 'MetaMask';
+    if (Authenticator.auth.bitcoin.key) return 'Bitcoin';
     if (Authenticator.auth.webauthn.key) return 'WebAuthn';
     if (Authenticator.auth.google.key) return 'Google';
     if (Authenticator.auth.password.key) return 'Password';
@@ -79,8 +81,9 @@ window.Authenticator = window.Authenticator || {};
 
   function autoLock() {
     var a = Authenticator.auth;
-    var hadKey = !!(a.metamask.key || a.webauthn.key || a.google.key || a.password.key);
+    var hadKey = !!(a.metamask.key || a.bitcoin.key || a.webauthn.key || a.google.key || a.password.key);
     a.metamask.key = null; a.metamask.salt = null;
+    a.bitcoin.key = null; a.bitcoin.salt = null;
     a.webauthn.key = null; a.webauthn.salt = null;
     a.google.key = null; a.google.salt = null;
     a.password.key = null; a.password.salt = null;
@@ -143,6 +146,67 @@ window.Authenticator = window.Authenticator || {};
     _activeMethod = recheckActive();
     updateModalUI();
     Authenticator.showToast('MetaMask disconnected.', 'info');
+  };
+
+  /* ── ========== Bitcoin Wallet ========== ── */
+  Authenticator.btcConnect = async function() {
+    var provider = null;
+    if (window.unisat) {
+      provider = window.unisat;
+    } else if (window.LeatherProvider) {
+      provider = window.LeatherProvider;
+    } else if (window.BitcoinProvider) {
+      provider = window.BitcoinProvider;
+    } else if (window.okxwallet) {
+      provider = window.okxwallet;
+    }
+    if (!provider) {
+      Authenticator.showToast('No Bitcoin wallet found. Install Leather, Unisat, Xverse or OKX.', 'error');
+      return;
+    }
+    try {
+      var accounts = await provider.getAccounts();
+      if (!accounts || !accounts.length) {
+        if (provider.connect) await provider.connect();
+        accounts = await provider.getAccounts();
+      }
+      if (!accounts || !accounts.length) {
+        Authenticator.showToast('No BTC account.', 'error');
+        return;
+      }
+      var address = accounts[0];
+      var message = 'Authenticator BTC\nAddress: ' + address + '\nTime: ' + Date.now();
+      var signature;
+      if (provider.signMessage) {
+        signature = await provider.signMessage(message);
+      } else if (provider.signPersonalMessage) {
+        signature = await provider.signPersonalMessage(message);
+      } else {
+        Authenticator.showToast('Wallet cannot sign messages.', 'error');
+        return;
+      }
+      var salt = crypto.getRandomValues(new Uint8Array(16));
+      var key = await deriveKeyArgon2id(signature, salt);
+      Authenticator.auth.bitcoin.address = address;
+      Authenticator.auth.bitcoin.provider = provider;
+      Authenticator.auth.bitcoin.key = key;
+      Authenticator.auth.bitcoin.salt = salt;
+      _activeMethod = 'bitcoin';
+      updateModalUI();
+      Authenticator.showToast('BTC connected: ' + address.slice(0,6) + '...' + address.slice(-4), 'success');
+    } catch (err) {
+      Authenticator.showToast('BTC connect failed: ' + err.message, 'error');
+    }
+  };
+
+  Authenticator.btcDisconnect = function() {
+    Authenticator.auth.bitcoin.address = null;
+    Authenticator.auth.bitcoin.provider = null;
+    Authenticator.auth.bitcoin.key = null;
+    Authenticator.auth.bitcoin.salt = null;
+    _activeMethod = recheckActive();
+    updateModalUI();
+    Authenticator.showToast('Bitcoin disconnected.', 'info');
   };
 
   /* ── ========== WebAuthn (FIDO2 / hardware key) ========== ── */
@@ -317,6 +381,7 @@ window.Authenticator = window.Authenticator || {};
   function recheckActive() {
     var a = Authenticator.auth;
     if (a.metamask.key) return 'metamask';
+    if (a.bitcoin.key) return 'bitcoin';
     if (a.webauthn.key) return 'webauthn';
     if (a.google.key) return 'google';
     if (a.password.key) return 'password';
@@ -455,6 +520,24 @@ window.Authenticator = window.Authenticator || {};
     // MetaMask export/import
     document.getElementById('metaExport').disabled = !a.metamask.key;
     document.getElementById('metaImport').disabled = !a.metamask.key;
+
+    // Bitcoin
+    var btcAccount = document.getElementById('btcAccount');
+    var btcStatus = document.getElementById('btcStatus');
+    var btcConnect = document.getElementById('btcConnect');
+    if (a.bitcoin.address) {
+      if (btcAccount) btcAccount.textContent = a.bitcoin.address.slice(0,6) + '...' + a.bitcoin.address.slice(-4);
+      if (btcConnect) btcConnect.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M6 12l4-4-4-4"/></svg> Disconnect';
+      btcConnect.className = 'btn btn-small';
+      if (btcStatus) btcStatus.textContent = a.bitcoin.key ? 'Ready ✓' : 'Connected (re-sign to unlock)';
+    } else {
+      if (btcAccount) btcAccount.textContent = '';
+      if (btcConnect) btcConnect.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px"><path d="M8 1v7m0 0l3-3m-3 3L5 5"/><path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9"/></svg> Connect';
+      btcConnect.className = 'btn btn-small btn-primary';
+      if (btcStatus) btcStatus.textContent = 'Disconnected';
+    }
+    document.getElementById('btcExport').disabled = !a.bitcoin.key;
+    document.getElementById('btcImport').disabled = !a.bitcoin.key;
 
     // WebAuthn
     var wauthStatus = document.getElementById('wauthStatus');
